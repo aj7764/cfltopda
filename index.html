@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>CFL to PDA Conversion</title>
+    <style>
+        /* CSS styling */
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        #container {
+            text-align: center;
+            margin: 50px;
+        }
+
+        #inputForm {
+            margin-bottom: 20px;
+        }
+
+        #result {
+            margin-top: 20px;
+        }
+
+        #error {
+            color: red;
+        }
+
+        #pdaResult {
+            text-align: left;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <h1>CFL to PDA Conversion</h1>
+        <form id="inputForm">
+            <label for="cflInput">Enter the Context-Free Language (CFL):</label><br>
+            <input type="text" id="cflInput" name="cflInput">
+            <button type="button" onclick="convert()">Convert</button>
+        </form>
+
+        <div id="result">
+            <div id="error"></div>
+            <div id="pdaResult"></div>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript for handling CFL to PDA conversion
+        function convert() {
+            const cflInput = document.getElementById('cflInput').value;
+
+            // Send CFL input to the server for processing
+            fetch('/convert', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ cfl: cflInput })
+            })
+            .then(response => response.json())
+            .then(data => displayResult(data.pda))
+            .catch(error => displayError(error.message));
+        }
+
+        function displayResult(result) {
+            console.log(result);
+            const resultDiv = document.getElementById('pdaResult');
+            resultDiv.innerHTML = '<h2>PDA Result</h2>';
+
+            // Display PDA states
+            resultDiv.innerHTML += `<p><strong>States:</strong> ${result.states.join(', ')}</p>`;
+
+            // Display input alphabet
+            resultDiv.innerHTML += `<p><strong>Input Alphabet:</strong> ${result.input_alphabet.join(', ')}</p>`;
+
+            // Display stack alphabet
+            resultDiv.innerHTML += `<p><strong>Stack Alphabet:</strong> ${result.stack_alphabet.join(', ')}</p>`;
+
+            // Display transitions
+            resultDiv.innerHTML += '<p><strong>Transitions:</strong></p>';
+            resultDiv.innerHTML += '<ul>';
+            for (const key in result.transitions) {
+                if (result.transitions.hasOwnProperty(key)) {
+                    const value = result.transitions[key];
+                    resultDiv.innerHTML += `<li><strong>${key}:</strong> ${value.join(', ')}</li>`;
+                }
+            }
+            resultDiv.innerHTML += '</ul>';
+        }
+
+        function displayError(errorMessage) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.innerHTML = `<p><strong>Error:</strong> ${errorMessage}</p>`;
+        }
+    </script>
+</body>
+
+</html>
